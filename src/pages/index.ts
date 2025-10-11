@@ -1,0 +1,10 @@
+export { default as Login } from "./Auth/Login/Login";
+export { default as Register } from "./Auth/Register/Register";
+export { default as ForgetPass } from "./Auth/ForgetPass/ForgetPass";
+export { default as ResetPassword } from "./Auth/ResetPass/ResetPass";
+export { default as ChangePass } from "./Auth/ChangePass/ChangePass";
+export { default as Dashboard } from "./Dashboard/Dashboard";
+export { default as Quizzes } from "./Quizzes/Quizzes";
+export { default as Groups } from "./Groups/Groups";
+export { default as Results } from "./Results/Results";
+export { default as NotFound } from "./NotFound/NotFound";

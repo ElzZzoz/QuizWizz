@@ -1,0 +1,11 @@
+/* src/index.css */
+
+/* Keep these imports at the very top */
+@import "./Variables.css";
+@import "./Responsive.css";
+
+/* Your other global styles can start here */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}

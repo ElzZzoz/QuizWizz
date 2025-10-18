@@ -25,8 +25,8 @@ function App() {
       // All children are now relative to the root path "/"
       children: [
         { index: true, element: <Login /> }, // This will match the root path "/"
-        { path: ROUTES.LOGIN, element: <Login /> },
-        { path: ROUTES.REGISTER, element: <Register /> },
+        { path: "signin", element: <Login /> },
+        { path: "signup", element: <Register /> },
         { path: ROUTES.FORGET_PASSWORD, element: <ForgetPass /> },
         { path: ROUTES.RESET_PASSWORD, element: <ResetPassword /> },
         { path: ROUTES.CHANGE_PASSWORD, element: <ChangePass /> },

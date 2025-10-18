@@ -3,9 +3,28 @@
 /* Keep these imports at the very top */
 @import "./Variables.css";
 @import "./Responsive.css";
-
+@import "tailwindcss";
 /* Your other global styles can start here */
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
+}
+
+/* Custom scrollbar styling */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: #c5d86d;
+  border-radius: 10px;
+}
+
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #c5d86d transparent;
 }

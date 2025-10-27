@@ -3,12 +3,13 @@ import { toast } from "react-hot-toast";
 import { FaCheckCircle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import InputField from "./InputFields";
-import CookieServices from "@/services/CookieServices/CookieServices";
+import CookieService from "@/services/CookieServices/CookieServices";
 import {
   loginValidationSchema,
   loginInitialValues,
 } from "@/utils/Validation/loginValidations";
 import { loginUser } from "@/services/Auth/authService";
+import { isAxiosError } from "axios";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -16,17 +17,52 @@ export default function LoginForm() {
   const handleSubmit = async (values: typeof loginInitialValues) => {
     try {
       toast.loading("Signing in...", { id: "login" });
-      const data = await loginUser(values.email, values.password);
-      const token = data?.data?.token;
 
-      if (token) CookieServices.set("token", token);
+      const data = await loginUser(values.email, values.password);
+
+      // ✅ Correct token path
+      const token = data?.data?.accessToken;
+
+      if (token) {
+        CookieService.set("token", token, {
+          path: "/",
+          secure: false, // ✅ must be false on localhost
+          sameSite: "lax",
+        });
+        console.log("✅ Token saved in cookie:", document.cookie);
+      } else {
+        console.log("❌ No token found in response");
+      }
 
       toast.success("Login successful!", { id: "login" });
       navigate("/dashboard");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login failed", {
+    } catch (error: unknown) {
+      // --- START: Updated Error Block ---
+
+      let errorMessage = "Login failed. Please try again."; // 1. Set a default message
+
+      // 2. Check if it's an Axios error
+      if (isAxiosError(error)) {
+        // 3. Now it's safe to access error.response
+        // Check if your backend sent a specific 'message' field
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else {
+          // Fallback to the general error message from Axios
+          errorMessage = error.message;
+        }
+      }
+      // 4. (Optional) Handle non-Axios JavaScript errors
+      else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      // 5. Show the final error message
+      toast.error(errorMessage, {
         id: "login",
       });
+
+      // --- END: Updated Error Block ---
     }
   };
 

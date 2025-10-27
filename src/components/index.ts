@@ -1,5 +1,9 @@
-export { default as MasterLayout } from "./MasterLayout/MasterLayout";
-export { default as AuthLayout } from "./AuthLayout/AuthLayout";
-export { default as Sidebar } from "./Sidebar/Sidebar";
-export { default as Navbar } from "./Navbar/Navbar";
-export { default as SpinnerMini } from "./SpinnerMini/Spinnermini";
+export { default as MasterLayout } from "./shared/MasterLayout/MasterLayout";
+export { default as AuthLayout } from "./shared/AuthLayout/AuthLayout";
+export { default as Sidebar } from "./shared/Sidebar/Sidebar";
+export { default as Navbar } from "./shared/Navbar/Navbar";
+export { default as SpinnerMini } from "./shared/SpinnerMini/Spinnermini";
+export { default as QuizCard } from "./shared/Cards/Cards";
+export { default as GroupCard } from "./Groups/GroupCard/GroupCard";
+export { default as GroupsList } from "./Groups/GroupList/GroupList";
+export { default as Pagination } from "./shared/Pagination/Pagination";

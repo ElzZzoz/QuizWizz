@@ -210,7 +210,7 @@ export default function Quizzes() {
             <QuizTable
               quizzes={(completedQuery.data ?? []).map((quiz) => ({
                 ...quiz,
-                group: quiz.group ?? "",
+                score_per_question: String(quiz.score_per_question),
               }))}
               onDelete={(id) => console.log("Delete", id)}
               isDeleting={false}

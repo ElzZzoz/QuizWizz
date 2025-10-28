@@ -53,7 +53,6 @@ function MasterLayout() {
       <div className="flex flex-col flex-1">
         <Navbar
           currentTab={currentTab}
-          onNewQuiz={() => alert("Starting a new quiz!")}
           onMenuClick={() => setSidebarOpen((prev) => !prev)} // toggle sidebar
         />
 

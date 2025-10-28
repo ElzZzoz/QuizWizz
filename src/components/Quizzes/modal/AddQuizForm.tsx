@@ -87,7 +87,7 @@ const AddQuizForm = () => {
     })) || [];
 
   if (successData) {
-    return <QuizSuccessModal code={successData.code} />;
+    return <QuizSuccessModal code={successData.code || ""} />;
   }
 
   // --- UPDATED FOR RESPONSIVENESS ---

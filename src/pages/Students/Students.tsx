@@ -59,7 +59,7 @@ export default function Students() {
   // === Get first visible group’s ID for fetching students ===
   const activeGroupId = visibleGroups && visibleGroups[0]?._id;
   const { data: groupDetails, isLoading: isLoadingStudents } =
-    useGroupDetailsQuery(activeGroupId);
+    useGroupDetailsQuery(activeGroupId ?? null);
 
   const students = groupDetails?.students || [];
   const areStudentsLoading = isLoadingStudents;
@@ -105,7 +105,9 @@ export default function Students() {
               <button
                 key={group._id}
                 onClick={() =>
-                  setActiveIndex(groups.findIndex((g) => g._id === group._id))
+                  setActiveIndex(
+                    (groups ?? []).findIndex((g) => g._id === group._id)
+                  )
                 }
                 className={`flex-1 md:flex-none w-full md:w-[130px] h-[35px] border rounded-lg md:rounded-[30px] flex items-center justify-center text-sm font-medium transition-colors duration-200 ${
                   group._id === activeGroup?._id

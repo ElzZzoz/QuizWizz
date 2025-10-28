@@ -12,7 +12,6 @@ export function QuizTable({
   quizzes,
   onDelete,
   isDeleting,
-  onEdit, // <-- Make sure onEdit is passed
 }: {
   quizzes: Quiz[];
   onDelete: (id: string) => void;
@@ -64,7 +63,6 @@ export function QuizTable({
                 quiz={quiz}
                 onDelete={onDelete}
                 isDeleting={isDeleting}
-                onEdit={onEdit} // <-- Pass onEdit to the row
               />
             ))}
           </tbody>

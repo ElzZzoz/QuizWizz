@@ -16,6 +16,7 @@ export interface Quiz extends CreateQuizPayload {
   updatedAt?: string;
   quiz?: string;
   quizzes?: string;
+  code?: string;
 }
 
 export type UpdateQuizPayload = Partial<CreateQuizPayload>;

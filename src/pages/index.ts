@@ -8,3 +8,4 @@ export { default as Quizzes } from "./Quizzes/Quizzes";
 export { default as Groups } from "./Groups/Groups";
 export { default as Results } from "./Results/Results";
 export { default as NotFound } from "./NotFound/NotFound";
+export { default as Students } from "./Students/Students";

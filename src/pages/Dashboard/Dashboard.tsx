@@ -38,7 +38,7 @@ export default function Dashboard() {
     const fetchQuizzes = async () => {
       try {
         const response = await api.get("/quiz/incomming"); // no domain needed
-        console.log(response.data);
+
         setQuizzes(response.data || []); // depends on backend shape
       } catch (error) {
         console.error("Error fetching quizzes:", error);
@@ -55,7 +55,7 @@ export default function Dashboard() {
       try {
         const studentsResponse = await api.get("/student"); // ✅ base URL already in api instance
         const topFiveStudents = studentsResponse.data?.slice(0, 5) || [];
-        console.log(topFiveStudents);
+
         setStudents(topFiveStudents);
       } catch (error) {
         console.error("Error fetching students:", error);

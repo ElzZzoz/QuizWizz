@@ -1,12 +1,27 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { ModalContext } from "./ModalContext";
 import api from "@/utils/api/AxiosInstance";
 import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useGroupsQuery } from "@/hooks/useGroupsQuery";
+import toast from "react-hot-toast";
+import { AxiosError } from "axios";
+
+import { QuizSuccessModal } from "./QuizSuccessModal";
+import type { Quiz } from "@/interfaces/QuizInterfaces/QuizInterfaces";
+import FlexInput from "@/components/ui/FlexInput";
+import FlexSelect from "@/components/ui/FlexSelect";
+import type { ChangeHandler } from "@/types/form.types";
+
+type QuizApiResponse = {
+  data: Quiz;
+  message: string;
+};
 
 const AddQuizForm = () => {
   const modal = useContext(ModalContext);
+  const [successData, setSuccessData] = useState<Quiz | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -22,18 +37,26 @@ const AddQuizForm = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const {
+    data: groups,
+    isLoading: isLoadingGroups,
+    isError: isErrorGroups,
+  } = useGroupsQuery();
+
+  useEffect(() => {
+    if (groups && groups.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        group: prev.group || groups[0]._id,
+      }));
+    }
+  }, [groups]);
+
+  const handleChange: ChangeHandler = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "questions_number" ||
-        name === "duration" ||
-        name === "score_per_question"
-          ? Number(value)
-          : value,
+      [name]: name === "questions_number" ? Number(value) : value,
     }));
   };
 
@@ -41,95 +64,39 @@ const AddQuizForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post("/quiz", formData);
-      alert("✅ Quiz Created Successfully!");
-      modal?.closeModal();
+      const response = await api.post<QuizApiResponse>("/quiz", formData);
+      setSuccessData(response.data.data);
     } catch (error) {
       console.error(error);
-      alert("❌ Failed to create quiz");
+      let errorMessage = "❌ Failed to create quiz. Please try again.";
+      if (error instanceof AxiosError) {
+        if (error.response?.data?.message) {
+          errorMessage = `❌ ${error.response.data.message}`;
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const FlexInput = ({
-    label,
-    id,
-    name,
-    type,
-    value,
-    onChange,
-    className = "",
-  }: {
-    label: string;
-    id: string;
-    name: string;
-    type: string;
-    value: string | number;
-    onChange: any;
-    className?: string;
-  }) => (
-    <div className={`flex items-center  ${className}`}>
-      <div className="w-[100px] h-[38px] bg-[#FFEDDF] rounded flex items-center justify-center font-medium flex-shrink-0">
-        {label}
-      </div>
-      <input
-        id={id}
-        name={name}
-        type={type}
-        value={value}
-        onChange={onChange}
-        className="flex-1 border rounded-[10px] h-[38px] p-2 min-w-0"
-        required
-      />
-    </div>
-  );
+  const formattedGroupOptions =
+    groups?.map((group) => ({
+      label: group.name,
+      value: group._id,
+    })) || [];
 
-  const FlexSelect = ({
-    label,
-    id,
-    name,
-    value,
-    onChange,
-    options,
-  }: {
-    label: string;
-    id: string;
-    name: string;
-    value: string;
-    onChange: any;
-    options: { label: string; value: string }[];
-    className?: string;
-  }) => (
-    <div className="flex items-center flex-1">
-      <div className="w-[100px] h-[38px] bg-[#FFEDDF] rounded flex items-center justify-center font-medium flex-shrink-0">
-        {label}
-      </div>
-      <select
-        id={id}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="flex-1 border rounded-[10px] h-[38px] p-2 min-w-0"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  if (successData) {
+    return <QuizSuccessModal code={successData.code} />;
+  }
 
+  // --- UPDATED FOR RESPONSIVENESS ---
   return (
-    <div className="w-[650px] max-h-[650px] overflow-y-auto rounded-lg relative bg-white  flex flex-col">
+    <div className="w-full max-w-[650px] max-h-[85vh] md:max-h-[650px] overflow-y-auto rounded-lg relative bg-white flex flex-col p-4 md:p-6">
+      {/* --- Header --- */}
       <div className="flex items-center justify-between mb-4">
-        {/* Title on the left */}
-        <h2 className="text-xl font-bold">Add Quiz</h2>
-
-        {/* Buttons on the right */}
+        <h2 className="text-lg md:text-xl font-bold">Add Quiz</h2>
         <div className="flex items-center gap-2">
-          {/* Close Modal Button */}
           <button
             type="button"
             onClick={() => modal?.closeModal()}
@@ -137,18 +104,16 @@ const AddQuizForm = () => {
           >
             <FaXmark size={20} />
           </button>
-
-          {/* Submit Button */}
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || isLoadingGroups}
             className={`flex items-center justify-center w-10 h-10 rounded 
-        ${
-          loading
-            ? "text-gray-400 cursor-not-allowed"
-            : "text-black hover:text-gray-700 bg-transparent"
-        }`}
+            ${
+              loading || isLoadingGroups
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-black hover:text-gray-700 bg-transparent"
+            }`}
           >
             {loading ? (
               <AiOutlineLoading3Quarters size={20} className="animate-spin" />
@@ -159,6 +124,7 @@ const AddQuizForm = () => {
         </div>
       </div>
 
+      {/* --- Form --- */}
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <FlexInput
@@ -180,8 +146,22 @@ const AddQuizForm = () => {
           onChange={handleChange}
         />
 
+        {/* Group Dropdown */}
+        <FlexSelect
+          id="group"
+          name="group"
+          label="Group"
+          value={formData.group}
+          onChange={handleChange}
+          options={formattedGroupOptions}
+          className="w-full"
+          isLoading={isLoadingGroups}
+          isError={isErrorGroups}
+        />
+
         {/* Duration, Questions Number, Score per Question */}
-        <div className="flex gap-4 w-full">
+        {/* --- UPDATED FOR RESPONSIVENESS --- */}
+        <div className="flex flex-col md:flex-row gap-4 w-full">
           <FlexInput
             id="duration"
             name="duration"
@@ -222,7 +202,8 @@ const AddQuizForm = () => {
         />
 
         {/* Difficulty and Type */}
-        <div className="flex gap-4 w-full">
+        {/* --- UPDATED FOR RESPONSIVENESS --- */}
+        <div className="flex flex-col md:flex-row gap-4 w-full">
           <FlexSelect
             id="difficulty"
             name="difficulty"

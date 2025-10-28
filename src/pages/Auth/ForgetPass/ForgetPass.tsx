@@ -88,6 +88,15 @@ export default function ForgetPass() {
           </Form>
         )}
       </Formik>
+
+      {/* --- ADDED BACK BUTTON --- */}
+      <button
+        type="button"
+        onClick={() => navigate(-1)} // Goes back one page in history
+        className="mt-6 text-gray-400 hover:text-white transition-colors"
+      >
+        &larr; Back to Login
+      </button>
     </div>
   );
 }

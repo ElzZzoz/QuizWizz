@@ -126,7 +126,7 @@ export default function RegisterForm() {
           </div>
 
           {/* Submit button */}
-          <div className="flex justify-between items-center mt-6">
+          <div className="flex justify-between gap-1 items-center mt-6">
             <button
               type="submit"
               disabled={isSubmitting}

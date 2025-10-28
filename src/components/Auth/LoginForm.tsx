@@ -10,62 +10,64 @@ import {
 } from "@/utils/Validation/loginValidations";
 import { loginUser } from "@/services/Auth/authService";
 import { isAxiosError } from "axios";
+import { jwtDecode } from "jwt-decode";
+
+interface TokenPayload {
+  id: string;
+  email: string;
+  role: "Student" | "Instructor"; // <-- The important part
+  iat: number;
+}
 
 export default function LoginForm() {
   const navigate = useNavigate();
 
   const handleSubmit = async (values: typeof loginInitialValues) => {
+    toast.loading("Signing in...", { id: "login" });
+
     try {
-      toast.loading("Signing in...", { id: "login" });
-
       const data = await loginUser(values.email, values.password);
-
-      // ✅ Correct token path
       const token = data?.data?.accessToken;
 
       if (token) {
+        // 2. Decode the token to get the user's data
+        const decodedPayload = jwtDecode<TokenPayload>(token);
+        const userRole = decodedPayload.role; // Get the role
+
+        // 3. Set BOTH cookies
         CookieService.set("token", token, {
           path: "/",
-          secure: false, // ✅ must be false on localhost
+          secure: false,
           sameSite: "lax",
         });
-        console.log("✅ Token saved in cookie:", document.cookie);
-      } else {
-        console.log("❌ No token found in response");
-      }
+        CookieService.set("role", userRole, {
+          // <-- 4. Save the role
+          path: "/",
+          secure: false,
+          sameSite: "lax",
+        });
 
-      toast.success("Login successful!", { id: "login" });
-      navigate("/dashboard");
-    } catch (error: unknown) {
-      // --- START: Updated Error Block ---
+        toast.success("Login successful!", { id: "login" });
 
-      let errorMessage = "Login failed. Please try again."; // 1. Set a default message
-
-      // 2. Check if it's an Axios error
-      if (isAxiosError(error)) {
-        // 3. Now it's safe to access error.response
-        // Check if your backend sent a specific 'message' field
-        if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
+        // 5. Add conditional navigation based on role
+        if (userRole.toLowerCase() === "student") {
+          navigate("/dashboard/quizzes");
         } else {
-          // Fallback to the general error message from Axios
-          errorMessage = error.message;
+          navigate("/dashboard");
         }
+      } else {
+        throw new Error("Invalid email or password.");
       }
-      // 4. (Optional) Handle non-Axios JavaScript errors
-      else if (error instanceof Error) {
+    } catch (error: unknown) {
+      let errorMessage = "Login failed. Please try again.";
+      if (isAxiosError(error)) {
+        errorMessage = error.response?.data?.message || error.message;
+      } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-
-      // 5. Show the final error message
-      toast.error(errorMessage, {
-        id: "login",
-      });
-
-      // --- END: Updated Error Block ---
+      toast.error(errorMessage, { id: "login" });
     }
   };
-
   return (
     <Formik
       initialValues={loginInitialValues}
@@ -87,7 +89,7 @@ export default function LoginForm() {
             placeholder="••••••••"
           />
 
-          <div className="flex justify-between items-center mt-6">
+          <div className="flex justify-between gap-1 items-center mt-6">
             <button
               type="submit"
               disabled={isSubmitting}

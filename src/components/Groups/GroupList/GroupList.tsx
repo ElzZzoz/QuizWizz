@@ -11,6 +11,8 @@ import {
   useGroupsQuery,
   useUpdateGroup,
 } from "@/hooks/useGroupsQuery";
+import toast from "react-hot-toast"; // --- 1. Import toast ---
+import { isAxiosError } from "axios"; // --- (Optional) For better error messages ---
 
 export default function GroupsList() {
   const { data: groups = [] } = useGroupsQuery();
@@ -47,25 +49,75 @@ export default function GroupsList() {
     setSelectedGroup(null);
   };
 
-  // ✅ CRUD API calls
+  // --- 2. CRUD API calls updated with toast.promise ---
+
   const handleCreateGroup = async (groupName: string) => {
-    await createGroup.mutateAsync(groupName);
-    handleCloseModal();
+    const promise = createGroup.mutateAsync(groupName);
+
+    toast.promise(promise, {
+      loading: "Creating group...",
+      success: "Group created successfully!",
+      error: (err) =>
+        isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Failed to create group.",
+    });
+
+    try {
+      await promise;
+      handleCloseModal(); // Only close modal on success
+    } catch (error) {
+      // Don't close modal on error
+      console.log(error);
+    }
   };
 
   const handleUpdateGroup = async (groupId: string, groupName: string) => {
-    await updateGroup.mutateAsync({ id: groupId, name: groupName });
-    handleCloseModal();
+    const promise = updateGroup.mutateAsync({ id: groupId, name: groupName });
+
+    toast.promise(promise, {
+      loading: "Updating group...",
+      success: "Group updated successfully!",
+      error: (err) =>
+        isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Failed to update group.",
+    });
+
+    try {
+      await promise;
+      handleCloseModal(); // Only close modal on success
+    } catch (error) {
+      // Don't close modal on error
+      console.log(error);
+    }
   };
 
   const handleDeleteGroup = async () => {
     if (!selectedGroup) return;
-    await deleteGroup.mutateAsync(selectedGroup._id);
-    handleCloseModal();
+    const promise = deleteGroup.mutateAsync(selectedGroup._id);
+
+    toast.promise(promise, {
+      loading: "Deleting group...",
+      success: "Group deleted successfully!",
+      error: (err) =>
+        isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Failed to delete group.",
+    });
+
+    try {
+      await promise;
+      handleCloseModal(); // Only close modal on success
+    } catch (error) {
+      // Don't close modal on error
+      console.log(error);
+    }
   };
 
   // ✅ No groups found
   if (groups.length === 0) {
+    // ... (no changes in this block)
     return (
       <div className="text-center p-8 border-dashed border-2 border-gray-300 rounded-lg">
         <p className="text-gray-500">No groups found.</p>
@@ -79,6 +131,7 @@ export default function GroupsList() {
     );
   }
 
+  // ... (no changes in the return/JSX)
   return (
     <div className="bg-gray-50 p-6 rounded-xl w-full">
       <div className="flex justify-between items-center mb-4">
@@ -111,7 +164,7 @@ export default function GroupsList() {
         />
       )}
 
-      {/* ✅ Modal */}
+      {/* ✅ Modal (no changes) */}
       <Modal.Root isOpen={!!modalMode} onClose={handleCloseModal}>
         {modalMode === "add" || modalMode === "edit" ? (
           <>

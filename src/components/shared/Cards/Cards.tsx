@@ -11,7 +11,7 @@ interface QuizCardProps {
     title: string;
     status: string;
     duration: number;
-    schadule: string; // Note: 'schedule' is the correct spelling
+    schadule: string;
     participants: number;
   };
 }
@@ -23,9 +23,10 @@ interface StudentCardProps {
     first_name: string;
     last_name: string;
     email: string;
-    status: string;
-    role: string;
-    group: {
+    status?: string; // Marked optional
+    role?: string; // Marked optional
+    group?: {
+      // Marked optional
       _id: string;
       name: string;
       status: string;
@@ -40,21 +41,20 @@ type CardImageProps = {
 
 // --- RESPONSIVE COMPONENTS ---
 
-// ✅ Root Component
+// ✅ Root Component (Unchanged)
 function CardRoot({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="flex flex-col sm:flex-row sm:items-center 
                  border border-gray-300 rounded-lg bg-white shadow-sm 
                  w-full max-w-lg overflow-hidden"
-      // Removed fixed style={{ width: "520px", height: "120px" }}
     >
       {children}
     </div>
   );
 }
 
-// ✅ Left Image
+// ✅ Left Image (Unchanged)
 export function CardImage({ imgSrc, icon }: CardImageProps) {
   return (
     <div
@@ -70,7 +70,6 @@ export function CardImage({ imgSrc, icon }: CardImageProps) {
           alt="Card Visual"
           width={120}
           height={120}
-          // The parent's `overflow-hidden` will handle rounding
           className="h-full w-full object-cover"
         />
       ) : null}
@@ -78,7 +77,7 @@ export function CardImage({ imgSrc, icon }: CardImageProps) {
   );
 }
 
-// ✅ Body Wrapper
+// ✅ Body Wrapper (Unchanged)
 function CardBody({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -90,14 +89,13 @@ function CardBody({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ✅ Middle Info Section
+// ✅ Middle Info Section (*** UPDATED ***)
 function CardInfo(props: CardProps) {
   if ("quiz" in props) {
     const { quiz } = props;
     return (
       <>
         <h3 className="text-lg font-bold text-gray-900">{quiz.title}</h3>
-        {/* Added flex-wrap for the date/time container */}
         <div className="flex flex-wrap items-center text-sm text-gray-600 gap-x-4 gap-y-1 mt-1">
           <span>{new Date(quiz.schadule).toLocaleDateString()}</span>
           <span className="w-[1px] h-4 bg-gray-400" aria-hidden="true"></span>
@@ -116,7 +114,7 @@ function CardInfo(props: CardProps) {
     );
   }
 
-  // ✅ Student UI
+  // ✅ Student UI (*** UPDATED ***)
   const { student } = props;
   return (
     <>
@@ -124,46 +122,48 @@ function CardInfo(props: CardProps) {
         {student.first_name} {student.last_name}
       </h3>
       <p className="text-sm text-gray-600">{student.email}</p>
+
+      {/* FIX: Use optional chaining (student.group?.name) 
+        and provide a fallback if 'group' doesn't exist.
+      */}
       <p className="text-sm font-medium mt-1">
-        Group: <span className="font-bold">{student.group.name}</span>
+        Group: <span className="font-bold">{student.group?.name || "N/A"}</span>
       </p>
     </>
   );
 }
 
-// ✅ Right Side (Status Button / Student Status)
+// ✅ Right Side (Status Button / Student Status) (*** UPDATED ***)
 function CardStatus(props: CardProps) {
   if ("quiz" in props) {
     return (
       <div
         className="flex flex-col items-start sm:items-end justify-center 
-                   p-4 pt-0 sm:p-0 sm:pr-4"
-      >
-        <button className="flex items-center text-green-600 font-semibold text-sm gap-1">
-          <span>{props.quiz.status === "open" ? "Open" : "Closed"}</span>
-          <span className="text-lg">➜</span>
-        </button>
-      </div>
+                 p-4 pt-0 sm:p-0 sm:pr-4"
+      ></div>
     );
   }
+
+  // FIX: Safely check for student.status
+  const status = props.student.status || "unknown";
 
   return (
     <div
       className="flex flex-col items-start sm:items-end justify-center 
-                 p-4 pt-0 sm:p-0 sm:pr-4"
+               p-4 pt-0 sm:p-0 sm:pr-4"
     >
       <span
-        className={`text-sm font-semibold ${
-          props.student.status === "active" ? "text-green-600" : "text-red-500"
+        className={`text-sm font-semibold capitalize ${
+          status === "active" ? "text-green-600" : "text-gray-500"
         }`}
       >
-        {props.student.status}
+        {status}
       </span>
     </div>
   );
 }
 
-// ✅ Combine Subcomponents
+// ✅ Combine Subcomponents (Unchanged)
 const Card = Object.assign(CardRoot, {
   Image: CardImage,
   Body: CardBody,

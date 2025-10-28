@@ -2,16 +2,19 @@ import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { FaBars } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/MasterLayout/Logo icon.png";
-import { menuItems } from "./menuItems";
 import { renderIcon } from "./SidebarIcon";
 import { useActiveItem } from "./useActiveItem";
 import type { AppSidebarProps } from "@/types/index";
 import { useState } from "react";
+import CookieServices from "@/services/CookieServices/CookieServices";
+import { getMenuItems } from "./menuItems";
 
 export default function AppSidebar({ onClose }: AppSidebarProps) {
   const navigate = useNavigate();
   const { activeItem, setActiveItem } = useActiveItem();
   const [collapsed, setCollapsed] = useState(false);
+  const userRole = CookieServices.get("role") || "Instructor"; // Default to 'instructor' if not found
+  const menuItems = getMenuItems(userRole);
 
   return (
     <Sidebar

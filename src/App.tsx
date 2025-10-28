@@ -12,14 +12,15 @@ import {
   Groups,
   Results,
   NotFound,
+  Students,
 } from "./pages";
 import { AuthLayout, MasterLayout } from "./components";
 import { ROUTES } from "./services/Endpoints/Endpoints";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ModalProvider } from "./components/Quizzes/modal/ModalContext";
+// --- QueryClient and QueryClientProvider removed ---
+// --- ModalProvider removed (now in main.tsx) ---
 import { Modal } from "./components/Quizzes/modal/Modal"; // Only UI component
 
-const queryClient = new QueryClient();
+// --- queryClient instance removed ---
 
 function App() {
   const routes = createBrowserRouter([
@@ -44,35 +45,34 @@ function App() {
         { index: true, element: <Dashboard /> },
         { path: ROUTES.QUIZZES.slice(1), element: <Quizzes /> },
         { path: ROUTES.GROUPS.slice(1), element: <Groups /> },
+        { path: ROUTES.STUDENTS.slice(1), element: <Students /> },
         { path: ROUTES.RESULTS.slice(1), element: <Results /> },
       ],
     },
   ]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ModalProvider>
-        <RouterProvider router={routes} />
+    // --- Provider wrappers removed ---
+    <>
+      <RouterProvider router={routes} />
 
-        <Toaster
-          position="top-center"
-          gutter={12}
-          containerStyle={{ margin: "8px" }}
-          toastOptions={{
-            success: { duration: 3000 },
-            error: { duration: 4000 },
-            style: {
-              fontSize: "16px",
-              maxWidth: "500px",
-              padding: "16px 24px",
-            },
-          }}
-        />
+      <Toaster
+        position="top-center"
+        gutter={12}
+        containerStyle={{ margin: "8px", zIndex: 99999 }}
+        toastOptions={{
+          success: { duration: 3000 },
+          error: { duration: 4000 },
+          style: {
+            fontSize: "16px",
+            maxWidth: "500px",
+            padding: "16px 24px",
+          },
+        }}
+      />
 
-        {/* ✅ Now Modal is allowed to use useModal() */}
-        <Modal />
-      </ModalProvider>
-    </QueryClientProvider>
+      <Modal />
+    </>
   );
 }
 

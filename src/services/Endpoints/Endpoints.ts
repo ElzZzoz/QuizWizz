@@ -11,5 +11,6 @@ export const ROUTES = {
   QUIZZES: "/quizzes",
   GROUPS: "/groups",
   RESULTS: "/results",
+  STUDENTS: "/students",
   BANK: "/bank",
 };

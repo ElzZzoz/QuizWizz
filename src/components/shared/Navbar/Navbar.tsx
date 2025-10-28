@@ -1,3 +1,5 @@
+// src/components/Navbar.tsx (Updated)
+
 import { FaBars, FaUserCircle } from "react-icons/fa";
 import { useState, useContext } from "react";
 import { IoTimer } from "react-icons/io5";
@@ -6,8 +8,11 @@ import { jwtDecode } from "jwt-decode";
 import { IoIosPerson } from "react-icons/io";
 import { CiLogout } from "react-icons/ci";
 import useLogout from "@/hooks/useLogout";
-import { ModalContext } from "@/components/Quizzes/modal/ModalContext"; // import modal context
+import { ModalContext } from "@/components/Quizzes/modal/ModalContext";
 import AddQuizForm from "@/components/Quizzes/modal/AddQuizForm";
+
+// --- 1. Import your new Profile Modal ---
+import ProfileModalContent from "@/components/Quizzes/modal/ProfilemodalContent"; // Adjust path if needed
 
 interface NavbarProps {
   currentTab: string;
@@ -23,7 +28,7 @@ interface TokenPayload {
 export default function Navbar({ currentTab, onMenuClick }: NavbarProps) {
   const [openMenu, setOpenMenu] = useState(false);
   const logout = useLogout();
-  const modal = useContext(ModalContext); // access modal context
+  const modal = useContext(ModalContext);
 
   let username = "Guest";
   let role = "student";
@@ -36,7 +41,14 @@ export default function Navbar({ currentTab, onMenuClick }: NavbarProps) {
   }
 
   const handleNewQuiz = () => {
-    modal?.openModal(<AddQuizForm />); // open the AddQuizForm modal
+    modal?.openModal(<AddQuizForm />);
+  };
+
+  // --- 2. Create a handler for the Profile Modal ---
+  const handleOpenProfile = () => {
+    // Pass the username and role to the modal
+    modal?.openModal(<ProfileModalContent username={username} role={role} />);
+    setOpenMenu(false); // Close the dropdown after opening the modal
   };
 
   return (
@@ -53,7 +65,7 @@ export default function Navbar({ currentTab, onMenuClick }: NavbarProps) {
       <h1 className="text-xl font-semibold">{currentTab}</h1>
 
       <button
-        onClick={handleNewQuiz} // open modal here
+        onClick={handleNewQuiz}
         className="flex items-center justify-center gap-2 bg-white text-black border border-gray-300 hover:bg-gray-100 transition"
         style={{
           width: "150px",
@@ -84,7 +96,11 @@ export default function Navbar({ currentTab, onMenuClick }: NavbarProps) {
           {openMenu && (
             <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded border border-gray-200">
               <ul>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2">
+                {/* --- 3. Attach the handler to the Profile button --- */}
+                <li
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                  onClick={handleOpenProfile} // <-- ATTACH HANDLER
+                >
                   <IoIosPerson size={20} />
                   Profile
                 </li>
